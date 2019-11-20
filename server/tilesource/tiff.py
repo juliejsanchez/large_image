@@ -122,26 +122,17 @@ class TiffFileTileSource(FileTileSource):
         # preferred image
         for tdir in alldir:
             td = tdir[-1]
-            level = tdir[1]
+            level = tdir[-2]
             if (td.tileWidth != highest.tileWidth or
                     td.tileHeight != highest.tileHeight):
                 continue
-            # If a layer's image is not a multiple of the tile size, it should
-            # be near a power of two of the highest resolution image.
-            if (((td.imageWidth % td.tileWidth) and
-                    not nearPowerOfTwo(td.imageWidth, highest.imageWidth)) or
-                    ((td.imageHeight % td.tileHeight) and
-                        not nearPowerOfTwo(td.imageHeight, highest.imageHeight))):
-                continue
             directories[level] = td
-        if not len(directories) or (len(directories) < 2 and max(directories.keys()) + 1 > 4):
-            raise TileSourceException(
-                'Tiff image must have at least two levels.')
 
         # Sort the directories so that the highest resolution is the last one;
         # if a level is missing, put a None value in its place.
         self._tiffDirectories = [directories.get(key) for key in
                                  range(max(directories.keys()) + 1)]
+
         self.tileWidth = highest.tileWidth
         self.tileHeight = highest.tileHeight
         self.levels = len(self._tiffDirectories)
